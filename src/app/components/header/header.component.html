@@ -1,0 +1,214 @@
+<header class="bg-white shadow-md sticky top-0 z-50">
+  <div class="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
+    
+    <!-- Logo + nombre -->
+    <a routerLink="/" class="flex items-center gap-3 hover:opacity-90 transition">
+      <img src="anuncios.png" alt="Avisos Hot Logo" class="h-10 w-auto rounded-lg shadow-sm" />
+      <span class="text-2xl font-extrabold tracking-tight text-zinc-800 hover:text-violet-600 transition">
+        Avisos Hot
+      </span>
+    </a>
+
+    <!-- Botón Buscar -->
+    <div class="absolute left-1/2 transform -translate-x-1/2">
+      <button (click)="abrirModal()"
+              class="flex items-center gap-2 bg-violet-600 text-white font-semibold px-5 py-2 rounded-xl shadow hover:brightness-110 transition">
+        <i class="pi pi-search text-white"></i> Buscar
+      </button>
+    </div>
+
+    <!-- Botón Anunciarse o Mis Anuncios -->
+    <a *ngIf="!estaLogueado"
+       [routerLink]="['/register']"
+       [queryParams]="{ next: 'anunciarme' }"
+       class="px-4 py-2 text-sm font-semibold text-violet-600 border border-violet-600 rounded-lg hover:bg-violet-50 transition">
+      Anunciarme
+    </a>
+
+
+    <a *ngIf="estaLogueado && !esAdmin"
+    routerLink="/mis-anuncios"
+    class="px-4 py-2 text-sm font-semibold text-violet-600 border border-violet-600 rounded-lg hover:bg-violet-50 transition">
+   Mis Anuncios
+ </a>
+ 
+ <!-- 🔹 Botón solo para admin -->
+ <a *ngIf="esAdmin"
+    routerLink="/admin"
+    class="px-4 py-2 text-sm font-semibold text-white bg-violet-600 rounded-lg hover:brightness-110 transition">
+   Panel Admin
+ </a>
+  </div>
+
+  <!-- Promoción de verificación -->
+  <div *ngIf="estaLogueado && !esAdmin" class="bg-gradient-to-r from-indigo-50 via-violet-50 to-pink-50 border-y border-violet-200 text-zinc-800 text-center px-6 py-4 shadow-sm mb-6">
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+      <span class="text-base sm:text-lg font-semibold tracking-tight">
+        🔥 ¡Destacá tu anuncio y aparecé arriba en los resultados!
+      </span>
+      <a [routerLink]="['/verificacion']"
+         class="inline-block bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white text-sm font-bold px-5 py-2 rounded-full shadow hover:brightness-110 transition duration-300">
+        ✔️ Verificate ahora
+      </a>
+    </div>
+  </div>
+</header>
+
+
+
+
+     <!-- Botón "Destacados Premium" (opcional) -->
+      <!--
+      <a routerLink="/destacados"
+         class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white rounded-lg shadow-lg bg-gradient-to-r 
+                from-yellow-400 via-pink-500 to-fuchsia-600 hover:scale-105 active:scale-95 transition-all duration-300 animate-pulse">
+        <i class="pi pi-star-fill text-white text-base"></i>
+        Destacados Premium
+      </a>
+      -->
+
+  <!-- Modal -->
+  <div *ngIf="modalAbierto" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-white w-full max-w-lg p-6 rounded-2xl shadow-xl relative max-h-[90vh] overflow-y-auto">
+      <!-- Cerrar -->
+      <button (click)="cerrarModal()" class="absolute top-3 right-3 text-zinc-400 hover:text-red-500 text-xl">
+        &times;
+      </button>
+  
+      <h3 class="text-xl font-bold mb-4 text-zinc-800">Buscar Anuncios</h3>
+  
+      <form (submit)="aplicarFiltros()" class="space-y-4">
+
+        <!-- 🔥 VERIFICADO DESTACADO -->
+        <div class="bg-blue-100 border border-blue-300 p-4 rounded-xl shadow-sm flex items-center gap-3">
+          <input type="checkbox"
+                 [(ngModel)]="filtros.verificado"
+                 name="verificado"
+                 class="w-5 h-5 accent-blue-600" />
+          <label class="text-base font-bold text-blue-700">
+            ✔️ Mostrar solo anuncios verificados
+          </label>
+        </div>
+      
+        <!-- Alias -->
+        <!-- <div>
+          <label for="alias" class="block text-sm font-medium text-zinc-700 mb-1">Alias</label>
+          <input [(ngModel)]="filtros.alias"
+                 name="alias"
+                 id="alias"
+                 placeholder="Ej: Lola, Jessy..."
+                 class="w-full border rounded-lg px-3 py-2" />
+        </div> -->
+      
+        <!-- Género -->
+        <div>
+          <label for="genero" class="block text-sm font-medium text-zinc-700 mb-1">Género</label>
+          <select [(ngModel)]="filtros.genero" name="genero" id="genero" class="w-full border rounded-lg px-3 py-2">
+            <option value="">Todos</option>
+            <option value="mujer">Mujer</option>
+            <option value="hombre">Hombre</option>
+            <!-- <option value="trans-hombre">Trans Hombre</option>
+            <option value="trans-mujer">Trans Mujer</option> -->
+            
+            
+          </select>
+        </div>
+      
+        <!-- Etnia -->
+        <div>
+          <label for="etnia" class="block text-sm font-medium text-zinc-700 mb-1">Etnia</label>
+          <select [(ngModel)]="filtros.etnia" name="etnia" id="etnia" class="w-full border rounded-lg px-3 py-2">
+            <option value="">Cualquiera</option>
+            <option value="caucásica">Argentina</option>
+            <option value="latina">Paraguay</option>
+            <option value="afrodescendiente">Bolivia</option>
+            <option value="asiática">Peru</option>
+            <option value="mixta">venezuela</option>
+          </select>
+        </div>
+      
+        <div>
+          <label for="provincia" class="block text-sm font-semibold text-zinc-700 mb-1">Provincia</label>
+          <select [(ngModel)]="provinciaSeleccionada"
+                  name="provincia"
+                  id="provincia"
+                  class="w-full border border-zinc-300 rounded-lg px-4 py-2 bg-white text-zinc-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500">
+            <option value="">Seleccionar provincia</option>
+            <option *ngFor="let provincia of provincias" [value]="provincia">
+              {{ provincia }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Selector de Zona -->
+        <div class="mt-4">
+          <label for="zona" class="block text-sm font-semibold text-zinc-700 mb-1">Zona</label>
+          <select [(ngModel)]="filtros.zona"
+                  name="zona"
+                  id="zona"
+                  [disabled]="!provinciaSeleccionada"
+                  class="w-full border border-zinc-300 rounded-lg px-4 py-2 bg-white text-zinc-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50">
+            <option value="">Todas las zonas</option>
+            <option *ngFor="let zona of zonasPorProvincia[provinciaSeleccionada]" [value]="zona">
+              {{ zona }}
+            </option>
+          </select>
+        </div>
+        
+        <!-- Filtro: A quién atiende -->
+        <div>
+          <label for="atencion" class="block text-sm font-medium text-zinc-700 mb-1">¿A quién atiende?</label>
+          <select [(ngModel)]="filtros.atencion" name="atencion"
+                  class="w-full border rounded-lg px-3 py-2">
+            <option value="">Cualquiera</option>
+            <option value="Hombres">Hombres</option>
+            <option value="Mujeres">Mujeres</option>
+            <option value="Parejas">Parejas</option>
+            <option value="Personas trans">Personas trans</option>
+            <option value="No binarios">No binarios</option>
+          </select>
+        </div>
+
+        
+      
+        <!-- Rango de edad -->
+        <!-- <div class="flex gap-4">
+          <div class="w-1/2">
+            <label for="edadMin" class="block text-sm font-medium text-zinc-700 mb-1">Edad mínima</label>
+            <input type="number"
+                   min="18"
+                   [(ngModel)]="filtros.edadMin"
+                   name="edadMin"
+                   id="edadMin"
+                   class="w-full border rounded-lg px-3 py-2" />
+          </div>
+          <div class="w-1/2">
+            <label for="edadMax" class="block text-sm font-medium text-zinc-700 mb-1">Edad máxima</label>
+            <input type="number"
+                   max="80"
+                   [(ngModel)]="filtros.edadMax"
+                   name="edadMax"
+                   id="edadMax"
+                   class="w-full border rounded-lg px-3 py-2" />
+          </div>
+        </div> -->
+      
+        <!-- Botones -->
+        <div class="flex justify-end gap-2 pt-4">
+          <button type="button"
+                  (click)="cerrarModal()"
+                  class="text-sm px-4 py-2 rounded-lg text-zinc-500 hover:bg-zinc-100">
+            Cancelar
+          </button>
+          <button type="submit"
+                  class="bg-violet-600 text-white px-4 py-2 rounded-lg font-medium hover:brightness-110">
+            Aplicar
+          </button>
+        </div>
+      
+      </form>
+      
+      
+    </div>
+  </div>
+  

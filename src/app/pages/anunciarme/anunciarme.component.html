@@ -1,0 +1,111 @@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+  <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-10">
+    <h2 class="text-3xl font-bold text-center text-zinc-800 mb-8">Publicar un Anuncio</h2>
+
+    <form (submit)="publicar()" class="space-y-6">
+      <!-- Alias y Edad -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Alias</label>
+          <input [(ngModel)]="nuevoPerfil.alias" name="alias" required
+            class="input-style" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Edad</label>
+          <input type="number" [(ngModel)]="nuevoPerfil.edad" name="edad" min="18" required
+            class="input-style" />
+        </div>
+      </div>
+
+      <!-- Provincia y Zona -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Provincia</label>
+          <select [(ngModel)]="provinciaSeleccionada" name="provincia" class="input-style">
+            <option value="">Seleccionar provincia</option>
+            <option *ngFor="let p of provincias" [value]="p">{{ p }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Zona</label>
+          <select [(ngModel)]="nuevoPerfil.zona" name="zona" [disabled]="!provinciaSeleccionada"
+            class="input-style disabled:opacity-50">
+            <option value="">Todas las zonas</option>
+            <option *ngFor="let z of zonasPorProvincia[provinciaSeleccionada]" [value]="z">{{ z }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Contacto -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-700 mb-1">WhatsApp</label>
+        <input [(ngModel)]="nuevoPerfil.contacto" name="contacto" required
+          class="input-style" />
+      </div>
+
+      <!-- Género y Etnia -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Género</label>
+          <select [(ngModel)]="nuevoPerfil.genero" name="genero" required class="input-style">
+            <option value="">Seleccionar</option>
+            <option value="mujer">Mujer</option>
+            <option value="hombre">Hombre</option>
+            <option value="trans-mujer">Trans Mujer</option>
+            <option value="trans-hombre">Trans Hombre</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Etnia</label>
+          <select [(ngModel)]="nuevoPerfil.etnia" name="etnia" required class="input-style">
+            <option value="Argentina">Argentina</option>
+            <option value="Paraguay">Paraguay</option>
+            <option value="Bolivia">Bolivia</option>
+            <option value="Perú">Perú</option>
+            <option value="Venezuela">Venezuela</option>
+          </select>          
+        </div>
+      </div>
+
+      <!-- Descripción -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-700 mb-1">Descripción</label>
+        <textarea [(ngModel)]="nuevoPerfil.descripcion" name="descripcion" rows="4" class="input-style resize-none"></textarea>
+      </div>
+
+      <!-- A quién atiendes -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-700 mb-2">¿A quién atiendes?</label>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            *ngFor="let opcion of opcionesAtencion"
+            [ngClass]="{
+              'bg-violet-600 text-white': nuevoPerfil.atencion.includes(opcion),
+              'bg-zinc-100 text-zinc-700 hover:bg-zinc-200': !nuevoPerfil.atencion.includes(opcion)
+            }"
+            (click)="toggleSeleccion(opcion)"
+            class="px-4 py-1 rounded-full text-sm font-medium border border-zinc-300 transition-all duration-200"
+          >
+            {{ opcion }}
+          </button>
+        </div>
+        <small class="text-xs text-zinc-500 mt-1 block">Puedes seleccionar múltiples opciones</small>
+      </div>
+
+      <!-- Foto -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-700 mb-1">Foto de perfil</label>
+        <input type="file" (change)="onFileSelected($event)" accept="image/*"
+          class="input-style file:bg-violet-600 file:text-white file:border-0 file:rounded-md file:px-4 file:py-2 hover:file:bg-violet-700" />
+      </div>
+
+      <!-- Botón -->
+      <button type="submit"
+        class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white font-bold py-3 rounded-xl shadow-md hover:brightness-110 active:scale-95 transition-all duration-300">
+        Publicar Anuncio
+      </button>
+    </form>
+  </div>
+</div>

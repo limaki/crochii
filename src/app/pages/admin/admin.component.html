@@ -1,0 +1,31 @@
+<div class="min-h-screen bg-gray-100 p-6">
+  <div class="max-w-5xl mx-auto bg-white shadow-lg rounded-2xl p-8">
+    <h2 class="text-3xl font-bold text-violet-800 text-center mb-6">Panel de Administración</h2>
+    <p class="text-center text-gray-600 mb-8">
+      Bienvenido, estás autenticado como <strong>Administrador</strong>.
+    </p>
+
+    <!-- Tarjetas -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="bg-violet-100 text-violet-800 p-5 rounded-xl shadow">
+        <p class="text-sm font-medium">Usuarios registrados</p>
+        <p class="text-3xl font-extrabold mt-1">{{ stats?.usuarios ?? 0 }}</p>
+      </div>
+      <div class="bg-fuchsia-100 text-fuchsia-800 p-5 rounded-xl shadow">
+        <p class="text-sm font-medium">Total Anuncios</p>
+        <p class="text-3xl font-extrabold mt-1">{{ stats?.anuncios ?? 0 }}</p>
+      </div>
+      <div class="bg-green-100 text-green-800 p-5 rounded-xl shadow">
+        <p class="text-sm font-medium">Verificados</p>
+        <p class="text-3xl font-extrabold mt-1">{{ stats?.verificados ?? 0 }}</p>
+      </div>
+      <!-- <div class="bg-indigo-100 text-indigo-800 p-5 rounded-xl shadow">
+        <p class="text-sm font-medium">Activos Hoy</p>
+        <p class="text-3xl font-extrabold mt-1">{{ stats?.activosHoy ?? 0 }}</p>
+      </div> -->
+    </div>
+
+    <!-- Accesos -->
+
+  </div>
+</div>

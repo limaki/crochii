@@ -1,0 +1,49 @@
+<div class="p-8">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-3xl font-bold text-zinc-800">📢 Mis Anuncios</h2>
+    </div>
+
+    <div class="mb-6 text-center">
+      <a [routerLink]="['/verificacion']"
+         class="inline-block px-8 py-3 rounded-full text-white text-lg font-extrabold shadow-lg animate-pulse
+                bg-gradient-to-r from-yellow-400 via-pink-500 to-fuchsia-600 hover:brightness-110 transition duration-300">
+        🔥 ¡Hazte Verificado y Destácate Ya!
+      </a>
+    </div>
+  
+    <div *ngIf="!loading && anuncios.length === 0" class="text-zinc-500 italic text-center">
+      <p class="mb-4">No tienes anuncios aún. ¡Animate a crear el primero!</p>
+      <a [routerLink]="['/anunciarme']"
+         class="inline-block bg-violet-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-violet-700 transition">
+        ➕ Crear Anuncio
+      </a>
+    </div>
+    
+  
+    <div *ngIf="anuncios.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let anuncio of anuncios" class="bg-white rounded-xl shadow border overflow-hidden">
+        <img [src]="apiUrl + anuncio.foto" alt="Foto"
+             class="w-full h-48 object-cover" />
+  
+        <div class="p-4">
+          <h3 class="text-xl font-bold text-zinc-800">{{ anuncio.alias }}</h3>
+          <p class="text-sm text-gray-500">{{ anuncio.zona }} · {{ anuncio.edad }} años</p>
+          <p class="text-sm text-zinc-600 mt-2 line-clamp-3">{{ anuncio.descripcion }}</p>
+  
+          <!-- Botones de acción -->
+          <div class="flex justify-between items-center mt-4 space-x-2">
+            <a [routerLink]="['/editar-anuncio', anuncio._id]"
+               class="flex-1 text-center bg-blue-600 text-white text-sm py-2 rounded-lg hover:bg-blue-700 transition-all">
+              ✏️ Editar
+            </a>
+  
+            <button (click)="eliminarAnuncio(anuncio._id)"
+                    class="flex-1 bg-red-600 text-white text-sm py-2 rounded-lg hover:bg-red-700 transition-all">
+              🗑️ Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

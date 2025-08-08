@@ -1,0 +1,128 @@
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+  <div class="w-full max-w-3xl bg-white rounded-2xl shadow-2xl p-10">
+    <h2 class="text-3xl font-bold text-center text-zinc-800 mb-8">✏️ Editar Anuncio</h2>
+
+    <form *ngIf="anuncio" (ngSubmit)="guardarCambios()" class="space-y-6">
+
+      <!-- Alias y Edad -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Alias</label>
+          <input [(ngModel)]="anuncio.alias" name="alias" required class="input-style" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Edad</label>
+          <input type="number" [(ngModel)]="anuncio.edad" name="edad" min="18" required class="input-style" />
+        </div>
+      </div>
+
+      <!-- Provincia y Zona -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Provincia</label>
+          <select [(ngModel)]="provinciaSeleccionada" name="provincia" class="input-style">
+            <option value="">Seleccionar provincia</option>
+            <option *ngFor="let provincia of provincias" [value]="provincia">{{ provincia }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Zona</label>
+          <select [(ngModel)]="anuncio.zona" name="zona" [disabled]="!provinciaSeleccionada" class="input-style disabled:opacity-50">
+            <option value="">Todas las zonas</option>
+            <option *ngFor="let zona of zonasPorProvincia[provinciaSeleccionada]" [value]="zona">{{ zona }}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Contacto -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-700 mb-1">WhatsApp</label>
+        <input [(ngModel)]="anuncio.contacto" name="contacto" required class="input-style" />
+      </div>
+
+      <!-- Género y Nacionalidad -->
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Género</label>
+          <select [(ngModel)]="anuncio.genero" name="genero" required class="input-style">
+            <option value="">Seleccionar</option>
+            <option value="mujer">Mujer</option>
+            <option value="hombre">Hombre</option>
+            <option value="trans-mujer">Trans Mujer</option>
+            <option value="trans-hombre">Trans Hombre</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-zinc-700 mb-1">Nacionalidad</label>
+          <select [(ngModel)]="anuncio.etnia" name="etnia" required class="input-style">
+            <option value="Argentina">Argentina</option>
+            <option value="Paraguay">Paraguay</option>
+            <option value="Bolivia">Bolivia</option>
+            <option value="Perú">Perú</option>
+            <option value="Venezuela">Venezuela</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ¿A quién atiendes? -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-700 mb-2">¿A quién atiendes?</label>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            *ngFor="let opcion of opcionesAtencion"
+            [ngClass]="{
+              'bg-violet-600 text-white': anuncio.atencion.includes(opcion),
+              'bg-zinc-100 text-zinc-700 hover:bg-zinc-200': !anuncio.atencion.includes(opcion)
+            }"
+            (click)="toggleSeleccion(opcion)"
+            class="px-4 py-1 rounded-full text-sm font-medium border border-zinc-300 transition-all duration-200"
+          >
+            {{ opcion }}
+          </button>
+        </div>
+        <small class="text-xs text-zinc-500 mt-1 block">Puedes seleccionar múltiples opciones</small>
+      </div>
+
+      <!-- Descripción -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-700 mb-1">Descripción</label>
+        <textarea [(ngModel)]="anuncio.descripcion" name="descripcion" rows="4" required class="input-style resize-none"></textarea>
+      </div>
+
+      <!-- Foto actual -->
+      <div>
+        <label class="block text-sm font-semibold text-zinc-700 mb-1">📸 Foto actual</label>
+        <div class="flex items-center gap-4 mb-4">
+          <img 
+            *ngIf="anuncio.foto" 
+            [src]="apiUrl + anuncio.foto" 
+            alt="Vista previa" 
+            class="w-32 h-32 object-cover rounded-xl border border-zinc-200 shadow-sm"
+          />
+          <span *ngIf="!anuncio.foto" class="text-zinc-400 italic">Sin foto cargada</span>
+        </div>
+        <input 
+          type="file" 
+          (change)="onFileSelected($event)" 
+          accept="image/*"
+          class="block w-full text-sm text-zinc-600 file:mr-4 file:py-2 file:px-4
+                 file:rounded-md file:border-0
+                 file:text-sm file:font-semibold
+                 file:bg-violet-600 file:text-white
+                 hover:file:bg-violet-700 transition-all duration-300"
+        />
+      </div>
+      
+
+      <!-- Botón -->
+      <div class="text-center pt-4">
+        <button type="submit"
+          class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white font-bold py-3 rounded-xl shadow-md hover:brightness-110 active:scale-95 transition-all duration-300">
+          💾 Guardar Cambios
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

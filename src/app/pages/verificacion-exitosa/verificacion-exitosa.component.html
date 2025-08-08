@@ -1,0 +1,53 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-800 to-black px-6 py-16 text-white">
+    <div class="w-full max-w-xl p-10 rounded-3xl bg-zinc-950 shadow-2xl border border-violet-800 relative overflow-hidden">
+  
+      <!-- Efecto visual sutil -->
+      <div class="absolute inset-0 bg-gradient-to-tr from-violet-600/20 via-transparent to-transparent animate-pulse opacity-20 pointer-events-none"></div>
+  
+      <!-- Ícono de verificación -->
+      <div class="flex justify-center mb-6">
+        <div class="bg-violet-700 p-4 rounded-full shadow-lg animate-bounce">
+          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+          </svg>
+        </div>
+      </div>
+  
+      <!-- Título -->
+      <h2 class="text-3xl font-bold text-center mb-2">¡Verificación exitosa!</h2>
+  
+      <!-- Subtítulo -->
+      <p class="text-zinc-400 text-sm text-center mb-6">
+        Tu anuncio ha sido verificado correctamente y ahora tiene prioridad en las búsquedas.
+      </p>
+  
+      <!-- Beneficios destacados -->
+      <ul class="text-sm text-zinc-300 mb-8 space-y-2">
+        <li class="flex items-center gap-2">
+          <span class="text-green-400">✔</span> Aparece en los primeros resultados
+        </li>
+        <li class="flex items-center gap-2">
+          <span class="text-green-400">✔</span> Ganas más confianza y visibilidad
+        </li>
+        <li class="flex items-center gap-2">
+          <span class="text-green-400">✔</span> Aumenta el contacto con nuevos clientes
+        </li>
+      </ul>
+  
+      <!-- Recordatorio de duración -->
+      <div class="bg-zinc-800 border border-zinc-700 rounded-xl p-4 mb-6 text-center text-sm text-yellow-400 font-medium">
+        ⚠️ Tu verificación dura <strong class="text-white">7 días</strong>. No olvides renovarla a tiempo para no perder los beneficios.
+      </div>
+  
+      <!-- Botón -->
+      <div class="text-center">
+        <a
+          routerLink="/mis-anuncios"
+          class="inline-block bg-violet-600 hover:bg-violet-700 transition-all px-6 py-2 rounded-full font-semibold shadow-md"
+        >
+          Ver mi anuncio
+        </a>
+      </div>
+    </div>
+  </div>
+  
