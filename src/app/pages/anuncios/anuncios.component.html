@@ -39,7 +39,7 @@
 
       <!-- Imagen (más alta) -->
       <div class="relative">
-        <img [src]="apiUrl + perfil.foto" alt="{{ perfil.alias }}"
+        <img [src]="apiUrl + '/api/images/' + perfil.foto" alt="{{ perfil.alias }}"
              class="w-full h-72 object-cover rounded-t-2xl" />
         <span *ngIf="perfil.verificado"
           class="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">

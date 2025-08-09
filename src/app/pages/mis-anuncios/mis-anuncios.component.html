@@ -22,7 +22,7 @@
   
     <div *ngIf="anuncios.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div *ngFor="let anuncio of anuncios" class="bg-white rounded-xl shadow border overflow-hidden">
-        <img [src]="apiUrl + anuncio.foto" alt="Foto"
+        <img [src]="apiUrl + '/api/images/' + anuncio.foto" alt="Foto"
              class="w-full h-48 object-cover" />
   
         <div class="p-4">

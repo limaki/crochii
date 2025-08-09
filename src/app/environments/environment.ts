@@ -4,9 +4,11 @@
 //   };
 
 
-  //produccion real : 
+ // produccion real : 
 
   export const environment = {
     production: true,
-    apiUrl: 'https://crochii-upkm.vercel.app' 
+
+    apiUrl: 'https://chubby-plants-yell.loca.lt' 
   };
+

@@ -97,7 +97,7 @@
         <div class="flex items-center gap-4 mb-4">
           <img 
             *ngIf="anuncio.foto" 
-            [src]="apiUrl + anuncio.foto" 
+            [src]="apiUrl + '/api/images/' + anuncio.foto" 
             alt="Vista previa" 
             class="w-32 h-32 object-cover rounded-xl border border-zinc-200 shadow-sm"
           />

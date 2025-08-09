@@ -38,6 +38,8 @@ export class RegisterComponent {
     this.authService.register(this.registerData).subscribe({
       next: (res) => {
         localStorage.setItem('token', res.token);
+        localStorage.setItem('role', res.role);
+        localStorage.setItem('userId', res.userId);
         this.authEvents.notifyAuthChanged();
   
         if (this.nextPath === 'anunciarme') {

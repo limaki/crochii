@@ -4,10 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AuthEventsService } from '../../services/auth-events.service';
-
-
-
-
+import { AnunciosService } from '../../services/anuncios.service'; // 👈 importa el servicio
 
 @Component({
   standalone: true,
@@ -16,14 +13,14 @@ import { AuthEventsService } from '../../services/auth-events.service';
   imports: [CommonModule, FormsModule]
 })
 export class LoginComponent {
+  loginData = { email: '', password: '' };
 
-  loginData = {
-    email: '',
-    password: ''
-  };
-
-
-  constructor(private authService: AuthService, private router: Router, private authEvents: AuthEventsService) {}
+  constructor(
+    private authService: AuthService,
+    private anunciosService: AnunciosService,   // 👈 inyecta
+    private router: Router,
+    private authEvents: AuthEventsService
+  ) {}
 
   login() {
     const normalizedData = {
@@ -33,22 +30,40 @@ export class LoginComponent {
 
     this.authService.login(normalizedData).subscribe({
       next: (res) => {
+        // Guarda sesión
         localStorage.setItem('token', res.token);
         localStorage.setItem('role', res.role);
         localStorage.setItem('userId', res.userId);
-        this.authEvents.notifyAuthChanged();
 
-        if (res.anuncioId) {
-          localStorage.setItem('anuncioId', res.anuncioId);
-        }
+        // ❌ NO tomamos anuncioId del login (puede no venir / era incorrecto)
+        localStorage.removeItem('anuncioId');
 
-        if (res.role === 'admin') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/']);
-        }
+        // 🔎 Trae tus anuncios y guarda el primero (o el que prefieras)
+        this.anunciosService.getMisAnuncios().subscribe({
+          next: (data: any) => {
+            // Soporta respuesta como array o {anuncios: []}
+            const lista = Array.isArray(data) ? data : (data?.anuncios ?? []);
+            const primero = lista?.[0];
 
-        console.log(res.role); // ya no necesitás parsear desde localStorage acá
+            if (primero?._id) {
+              localStorage.setItem('anuncioId', primero._id);
+            } else {
+              localStorage.removeItem('anuncioId');
+            }
+
+            // Notifica login y navega
+            (this.authEvents as any).notifyAuthChange?.(true);
+            (this.authEvents as any).notifyAuthChanged?.(); // por si tu método se llama así
+            this.router.navigate([res.role === 'admin' ? '/admin' : '/']);
+          },
+          error: () => {
+            // Si falla cargar anuncios, seguimos igual
+            localStorage.removeItem('anuncioId');
+            (this.authEvents as any).notifyAuthChange?.(true);
+            (this.authEvents as any).notifyAuthChanged?.();
+            this.router.navigate([res.role === 'admin' ? '/admin' : '/']);
+          }
+        });
       },
       error: (err) => {
         alert('Credenciales inválidas');
@@ -56,8 +71,4 @@ export class LoginComponent {
       }
     });
   }
-  
-
-
-
 }
