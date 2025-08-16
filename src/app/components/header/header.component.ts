@@ -24,6 +24,7 @@ export class HeaderComponent implements OnInit, OnDestroy  {
   modalAbierto = false;
   estaLogueado = false;
   esAdmin = false;
+  tieneAnuncioId = false;
   provinciaSeleccionada = '';
   provincias: string[] = [];
   private sub?: Subscription;
@@ -325,11 +326,15 @@ export class HeaderComponent implements OnInit, OnDestroy  {
       this.estaLogueado = !!localStorage.getItem('token');
       const role = localStorage.getItem('role');
       this.esAdmin = this.estaLogueado && role === 'admin';
+      const id = localStorage.getItem('anuncioId');
+      this.tieneAnuncioId = !!id; // true si existe
   
       this.sub = this.authEvents.authChanged$.subscribe(() => {
         this.estaLogueado = !!localStorage.getItem('token');
         const role = localStorage.getItem('role');
         this.esAdmin = this.estaLogueado && role === 'admin';
+        const id = localStorage.getItem('anuncioId');
+        this.tieneAnuncioId = !!id; // true si existe
         this.cdr.markForCheck();
       });
     });
