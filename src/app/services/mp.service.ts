@@ -1,19 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { environment } from '../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MercadoPagoService {
-  private apiUrl = 'http://localhost:3000/api/anuncios'; // o tu URL real
+  private baseUrl = `${environment.apiUrl}/api/anuncios`; // o tu URL real
 
   constructor(private http: HttpClient) {}
 
-  getMiAnuncio(): Promise<any> {
-    return this.http.get(`${this.apiUrl}/mio`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    }).toPromise();
-  }
+  // getMiAnuncio(): Promise<any> {
+  //   return this.http.get(`${this.apiUrl}/mio`, {
+  //     headers: {
+  //       Authorization: `Bearer ${localStorage.getItem('token')}`
+  //     }
+  //   }).toPromise();
+  // }
   
 
   generarLinkDePagoAsync(): Promise<string> {
@@ -21,7 +22,7 @@ export class MercadoPagoService {
     if (!anuncioId) throw new Error('No hay ID de anuncio');
   
     return this.http.post<{ link: string }>(
-      `http://localhost:3000/api/anuncios/crear-pago/${anuncioId}`,
+      `${this.baseUrl}/crear-pago/${anuncioId}`,
       {},
       {
         headers: {

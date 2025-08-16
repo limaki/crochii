@@ -22,6 +22,7 @@ export class AnunciarmeComponent implements OnInit{
     descripcion: '',
     medalla: '',
     contacto: '',
+    provincia: '',
     atencion: [] 
   };
   opcionesAtencion: string[] = [
@@ -29,26 +30,17 @@ export class AnunciarmeComponent implements OnInit{
     'Mujeres',
     'Parejas',
     'Personas trans',
-    'No binarios'
   ];
 
 
   
 
-  
-  toggleSeleccion(opcion: string) {
-    const index = this.nuevoPerfil.atencion.indexOf(opcion);
-    if (index > -1) {
-      this.nuevoPerfil.atencion.splice(index, 1); // quitar
-    } else {
-      this.nuevoPerfil.atencion.push(opcion); // agregar
-    }
-  }
-  
-
-  selectedFile: File | null = null;
-  provinciaSeleccionada = '';
   provincias: string[] = [];
+  provinciaSeleccionada = '';
+
+  // 🔥 Ahora múltiples archivos
+  selectedFiles: File[] = [];
+  previewUrls: string[] = [];
   zonasPorProvincia : { [key: string]: string[] } = { 
   
   "Santa Cruz": [
@@ -332,50 +324,68 @@ ngOnInit(): void {
   this.provincias = Object.keys(this.zonasPorProvincia); 
 }
 
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
-      console.log('Archivo seleccionado:', this.selectedFile);
-    }
+toggleSeleccion(opcion: string) {
+  const index = this.nuevoPerfil.atencion.indexOf(opcion);
+  if (index > -1) {
+    this.nuevoPerfil.atencion.splice(index, 1);
+  } else {
+    this.nuevoPerfil.atencion.push(opcion);
   }
-  
+}
 
-  publicar(): void {
-    const formData = new FormData();
-  
-    // Convertimos todos los campos del objeto a FormData
-    Object.entries(this.nuevoPerfil).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else if (value !== undefined && value !== null) {
-        formData.append(key, value.toString());
-      }
-    });
-  
-    // Adjuntamos la imagen si hay una seleccionada
-    if (this.selectedFile) {
-      formData.append('foto', this.selectedFile);
-    }
-  
-    // Creamos el anuncio
-    this.anunciosService.createAnuncio(formData).subscribe({
-      next: (res: { _id: string }) => {
-        if (res?._id) {
-          localStorage.setItem('anuncioId', res._id);
-          console.log('✅ Anuncio creado:', res);
-          this.router.navigate(['/anuncios']);
-        } else {
-          console.warn('⚠️ El anuncio fue creado pero no se devolvió _id:', res);
-        }
-      },
-      error: (err) => {
-        console.error('❌ Error al publicar el anuncio:', err);
-        alert('Ocurrió un error al publicar el anuncio. Inténtalo más tarde.');
-      }
-    });
-    
+// ✅ seleccionar varias fotos
+onFilesSelected(event: any) {
+  const files: FileList = event.target.files;
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    this.selectedFiles.push(file);
+
+    // generar preview
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.previewUrls.push(e.target.result);
+    };
+    reader.readAsDataURL(file);
   }
-  
+}
+
+// ✅ eliminar foto antes de enviar
+removeImage(index: number) {
+  this.selectedFiles.splice(index, 1);
+  this.previewUrls.splice(index, 1);
+}
+
+publicar(): void {
+  this.nuevoPerfil.provincia = this.provinciaSeleccionada;
+  const formData = new FormData();
+
+  // Pasamos el resto de los campos
+  Object.entries(this.nuevoPerfil).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      formData.append(key, JSON.stringify(value));
+    } else if (value !== undefined && value !== null) {
+      formData.append(key, value.toString());
+    }
+  });
+
+  // Adjuntar TODAS las imágenes
+  this.selectedFiles.forEach((file, i) => {
+    formData.append('fotos', file); // 👈 el backend debe aceptar `fotos[]`
+  });
+
+  this.anunciosService.createAnuncio(formData).subscribe({
+    next: (res: { _id: string }) => {
+      if (res?._id) {
+        localStorage.setItem('anuncioId', res._id);
+        console.log('✅ Anuncio creado:', res);
+        this.router.navigate(['/anuncios']);
+      }
+    },
+    error: (err) => {
+      console.error('❌ Error al publicar el anuncio:', err);
+      alert('Ocurrió un error al publicar el anuncio. Inténtalo más tarde.');
+    }
+  });
+}
   
 }

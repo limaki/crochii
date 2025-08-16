@@ -1,10 +1,15 @@
+<div *ngIf="loading" class="flex justify-center items-center py-20">
+  <div class="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+</div>
+
 <!-- ✅ Si hay perfiles -->
-<div *ngIf="perfiles.length > 0" class="space-y-8">
-  <!-- 🔢 Paginador (TOP, centrado) -->
-  <div class="mt-8 flex justify-center">
-    <div class="inline-flex items-center gap-2 bg-white/70 backdrop-blur rounded-full px-2 py-1 shadow">
+<div *ngIf="!loading && perfiles.length > 0" class="space-y-8">
+
+  <!-- 🔢 Paginador TOP -->
+  <div class="mt-6 flex justify-center">
+    <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur rounded-full px-2 py-1 shadow-lg">
       <button (click)="prevPage()" [disabled]="currentPage === 1"
-        class="px-3 py-2 rounded-full border border-zinc-300 text-zinc-700 disabled:opacity-40 hover:bg-zinc-100 transition">
+        class="px-3 py-2 rounded-full border border-zinc-300 text-zinc-700 disabled:opacity-40 hover:bg-zinc-200 transition">
         <i class="pi pi-angle-left"></i>
       </button>
 
@@ -21,51 +26,95 @@
       </ng-container>
 
       <button (click)="nextPage()" [disabled]="currentPage === totalPages"
-        class="px-3 py-2 rounded-full border border-zinc-300 text-zinc-700 disabled:opacity-40 hover:bg-zinc-100 transition">
+        class="px-3 py-2 rounded-full border border-zinc-300 text-zinc-700 disabled:opacity-40 hover:bg-zinc-200 transition">
         <i class="pi pi-angle-right"></i>
       </button>
     </div>
   </div>
 
-  <!-- 🧩 GRID paginada (más aire vertical) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-16 pt-2 pb-6">
+  <!-- 🧩 GRID vistosa -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-4 pb-8">
     <div
       *ngFor="let perfil of paginatedPerfiles; trackBy: trackById"
-      class="rounded-2xl shadow-xl h-full flex flex-col transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.01]"
-      [ngClass]="{
-        'border-[4px] border-blue-600': perfil.verificado,
-        'border-[3px] border-gray-300': !perfil.verificado
-      }">
+      class="group relative rounded-2xl overflow-hidden shadow-2xl hover:shadow-violet-400/30 transition-all duration-500 cursor-pointer">
 
-      <!-- Imagen (más alta) -->
-      <div class="relative">
-        <img [src]="apiUrl + '/api/images/' + perfil.foto" alt="{{ perfil.alias }}"
-             class="w-full h-72 object-cover rounded-t-2xl" />
-        <span *ngIf="perfil.verificado"
-          class="absolute top-3 right-3 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
-          <i class="pi pi-check-circle text-sm"></i> Verificado
-        </span>
-      </div>
+<!-- CARRUSEL ROBUSTO (stack con fade) -->
+<div class="relative rounded-t-2xl h-80 select-none overflow-hidden"
+     (mouseenter)="stopAuto(perfil._id)"
+     (mouseleave)="startAuto(perfil._id, perfil.fotos?.length || 0)"
+     (touchstart)="onTouchStart($event)"
+     (touchend)="onTouchEnd(perfil._id, perfil.fotos?.length || 0, $event)">
 
-      <!-- Detalles (más padding y separación) -->
-      <div class="p-6 text-zinc-800 flex-1 flex flex-col">
-        <h3 class="text-xl font-bold mb-2 tracking-tight">{{ perfil.alias }}</h3>
-        <p class="text-sm text-gray-500 mb-2">{{ perfil.zona }} · {{ perfil.genero }}</p>
-        <p class="text-sm text-zinc-600 italic mb-6">{{ perfil.descripcion }}</p>
+  <!-- Slides apilados -->
+  <ng-container *ngIf="(perfil.fotos?.length || 0) > 0; else noFotos">
+    <img *ngFor="let foto of perfil.fotos; let i = index"
+         [src]="foto"
+         alt="{{ perfil.alias }}"
+         loading="lazy"
+         (error)="onImgError(perfil._id, i)"
+         class="absolute inset-0 w-full h-full object-contain transition-opacity duration-500"
+         [class.opacity-100]="(currentSlide[perfil._id] || 0) === i"
+         [class.opacity-0]="(currentSlide[perfil._id] || 0) !== i" />
+  </ng-container>
 
+  <!-- Placeholder si no hay fotos -->
+  <ng-template #noFotos>
+    <img src="assets/placeholder.jpg"
+         alt="Sin foto"
+         class="absolute inset-0 w-full h-full object-contain opacity-100" />
+  </ng-template>
+
+  <!-- Flechas -->
+  <button *ngIf="(perfil.fotos?.length || 0) > 1" type="button"
+          class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-9 h-9 rounded-full grid place-items-center"
+          (click)="prevSlide(perfil._id, perfil.fotos.length); resetAuto(perfil._id, perfil.fotos.length)">‹</button>
+  <button *ngIf="(perfil.fotos?.length || 0) > 1" type="button"
+          class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white w-9 h-9 rounded-full grid place-items-center"
+          (click)="nextSlide(perfil._id, perfil.fotos.length); resetAuto(perfil._id, perfil.fotos.length)">›</button>
+
+  <!-- Dots -->
+  <div *ngIf="(perfil.fotos?.length || 0) > 1"
+       class="absolute bottom-3 left-0 right-0 flex justify-center gap-2">
+    <button *ngFor="let _ of perfil.fotos; let i = index"
+            class="w-2.5 h-2.5 rounded-full transition"
+            [class.bg-white]="(currentSlide[perfil._id]||0) === i"
+            [class.bg-white40]="(currentSlide[perfil._id]||0) !== i"
+            (click)="goToSlide(perfil._id, i); resetAuto(perfil._id, perfil.fotos.length)">
+    </button>
+  </div>
+
+  <!-- Sello verificado -->
+  <span *ngIf="perfil.verificado"
+        class="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">✓ Verificado</span>
+</div>
+
+
+
+
+
+
+      
+
+      <!-- ℹ️ Info flotante (semi-overlay) -->
+      <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/80 to-transparent p-5 text-white transition-all duration-500 group-hover:from-black/90">
+        <h3 class="text-lg font-bold mb-1 tracking-tight">{{ perfil.alias }}</h3>
+        <p class="text-xs text-gray-200 mb-1">{{ perfil.zona }} · {{ perfil.genero }}</p>
+        <p class="text-sm text-gray-300 line-clamp-2 italic">{{ perfil.descripcion }}</p>
+
+        <!-- Botón -->
         <a [routerLink]="['/anuncio-individual', perfil._id]"
-           class="mt-auto flex justify-center items-center gap-2 w-full bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white font-semibold py-3 rounded-xl shadow-md hover:brightness-110 active:scale-95 transition-all duration-300">
+           class="mt-3 inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 px-4 py-2 rounded-full shadow-md text-sm font-semibold transition">
           Ver más
         </a>
       </div>
     </div>
   </div>
 
-  <!-- 🔢 Paginador (BOTTOM, centrado con más margen) -->
+  <!-- 🔢 Paginador BOTTOM -->
   <div class="mb-6 flex justify-center">
-    <div class="inline-flex items-center gap-2 bg-white/70 backdrop-blur rounded-full px-2 py-1 shadow">
+    <div class="inline-flex items-center gap-2 bg-white/80 backdrop-blur rounded-full px-2 py-1 shadow-lg">
       <button (click)="prevPage()" [disabled]="currentPage === 1"
-        class="px-3 py-2 rounded-full border border-zinc-300 text-zinc-700 disabled:opacity-40 hover:bg-zinc-100 transition">
+        class="px-3 py-2 rounded-full border border-zinc-300 text-zinc-700 disabled:opacity-40 hover:bg-zinc-200 transition">
         <i class="pi pi-angle-left"></i>
       </button>
 
@@ -82,7 +131,7 @@
       </ng-container>
 
       <button (click)="nextPage()" [disabled]="currentPage === totalPages"
-        class="px-3 py-2 rounded-full border border-zinc-300 text-zinc-700 disabled:opacity-40 hover:bg-zinc-100 transition">
+        class="px-3 py-2 rounded-full border border-zinc-300 text-zinc-700 disabled:opacity-40 hover:bg-zinc-200 transition">
         <i class="pi pi-angle-right"></i>
       </button>
     </div>
@@ -90,7 +139,7 @@
 </div>
 
 <!-- 🚫 Si no hay perfiles -->
-<p *ngIf="perfiles.length === 0"
+<p *ngIf="!loading && perfiles.length === 0"
    class="text-lg text-zinc-600 italic text-center max-w-2xl mx-auto mb-10">
   No hay anuncios que coincidan con tu búsqueda... <br />
   <span class="text-violet-600 font-semibold">Probá ajustando los filtros</span> o explorá otras zonas y preferencias 😉

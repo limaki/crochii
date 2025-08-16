@@ -1,47 +1,86 @@
-<div *ngIf="anuncio" class="max-w-4xl mx-auto mt-8 bg-white shadow-2xl rounded-3xl overflow-hidden border border-zinc-200">
-  <!-- Header -->
-  <div class="flex flex-col md:flex-row items-center gap-6 p-6 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white">
-    <img [src]="apiUrl + '/api/images/' + anuncio.foto"
-         alt="Foto del anuncio"
-         class="w-48 h-48 object-cover rounded-2xl border-4 border-white shadow-lg" />
-    <div class="text-center md:text-left">
-      <h2 class="text-4xl font-extrabold tracking-tight capitalize">{{ anuncio.alias }}</h2>
-      <p class="text-lg font-light mt-1">{{ anuncio.edad }} años</p>
+<div *ngIf="loading" class="flex justify-center items-center py-20">
+  <div class="w-12 h-12 border-4 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+</div>
+
+<div *ngIf="!loading && anuncio" class="max-w-5xl mx-auto my-8 bg-white shadow-2xl rounded-3xl overflow-hidden border border-zinc-200">
+
+  <!-- HERO con imagen principal -->
+  <div class="relative h-80 md:h-96">
+    <img [src]="fotoPrincipal"
+         (error)="onImgErrorPrincipal()"
+         alt="{{ anuncio.alias }}"
+         class="absolute inset-0 w-full h-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+    <div class="absolute bottom-5 left-5 right-5 flex flex-col md:flex-row md:items-end gap-4 justify-between">
+      <div class="text-white">
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight capitalize drop-shadow">
+          {{ anuncio.alias }}
+        </h1>
+        <p class="text-lg opacity-90">{{ anuncio.edad }} años • {{ anuncio.genero | titlecase }}</p>
+      </div>
+
+      <!-- Botón WhatsApp bien arriba -->
+      <a [href]="'https://wa.me/' + telefonoLimpio" target="_blank"
+         class="self-start md:self-auto inline-flex items-center gap-3 px-6 py-3 rounded-full text-white font-semibold shadow-xl transition-all duration-200 hover:scale-105"
+         style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%)">
+        <img src="https://icongr.am/fontawesome/whatsapp.svg?size=22&color=ffffff" alt="" class="w-5 h-5">
+        Chatear por WhatsApp
+      </a>
     </div>
   </div>
 
-  <!-- Info -->
-  <div class="p-6 text-zinc-800 space-y-6">   
-     <div>
-      <h3 class="text-xl font-semibold text-zinc-700 ">📝 Descripción</h3>
-      <p class="text-zinc-600 bg-zinc-100 p-4 rounded-xl whitespace-pre-wrap leading-relaxed shadow-inner">
+  <!-- CONTENIDO -->
+  <div class="p-6 md:p-8 text-zinc-800 space-y-10">
+
+<!-- GALERÍA (masonry hot) -->
+<section *ngIf="fotosRestantes?.length" class="space-y-3">
+  <h3 class="text-xl font-semibold text-zinc-800">📷 Galería</h3>
+
+  <!-- Masonry con CSS columns -->
+  <div class="columns-2 md:columns-3 gap-3 [column-fill:_balance]">
+    <ng-container *ngFor="let f of fotosRestantes; let i = index; trackBy: trackByIndex">
+      <button type="button"
+              (click)="abrirLightbox(f)"
+              class="group relative mb-3 break-inside-avoid overflow-hidden rounded-2xl shadow-sm block">
+        <!-- La imagen ocupa todo el contenedor -->
+        <img [src]="f" (error)="onImgErrorLista(i)" alt="Foto"
+             class="w-full h-auto block group-hover:scale-[1.03] transition-transform duration-300 will-change-transform" />
+        <!-- toque hot: sutil overlay -->
+        <span class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></span>
+        <span class="pointer-events-none absolute inset-0 ring-1 ring-black/5"></span>
+      </button>
+    </ng-container>
+  </div>
+</section>
+
+
+
+
+
+    <a [href]="'https://wa.me/' + telefonoLimpio" target="_blank"
+    class="self-start md:self-auto inline-flex items-center gap-3 px-6 py-3 rounded-full text-white font-semibold shadow-xl transition-all duration-200 hover:scale-105"
+    style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%)">
+   <img src="https://icongr.am/fontawesome/whatsapp.svg?size=22&color=ffffff" alt="" class="w-5 h-5">
+   Chatear por WhatsApp
+ </a>
+
+    <!-- Descripción -->
+    <section>
+      <h3 class="text-xl font-semibold text-zinc-800">📝 Descripción</h3>
+      <p class="text-zinc-600 bg-zinc-50 p-4 rounded-xl whitespace-pre-wrap leading-relaxed border border-zinc-200">
         {{ anuncio.descripcion }}
       </p>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base leading-relaxed">
-      <!-- <div class="flex items-center gap-3">
-        <span class="text-pink-500 text-xl">📍</span>
-        <span><strong>Provincia:</strong> {{ anuncio.provincia }}</span>
-      </div> -->
-      <div class="flex justify-center">
-        <a
-          [href]="'https://wa.me/' + telefonoLimpio"
-          target="_blank"
-          class="flex items-center gap-3 px-6 py-4 rounded-full text-white font-semibold text-lg shadow-xl transition-all duration-200 hover:scale-105"
-          style="background: linear-gradient(to right, #25D366, #128C7E)"
-        >
-          <img
-            src="https://icongr.am/fontawesome/whatsapp.svg?size=24&color=ffffff"
-            alt="WhatsApp"
-            class="w-6 h-6"
-          />
-          Chatear por WhatsApp
-        </a>
-      </div>
-      
-      
+    </section>
+
+    <!-- Datos principales -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base leading-relaxed">
       <div class="flex items-center gap-3">
         <span class="text-blue-500 text-xl">🗺️</span>
+        <span><strong>Provincia:</strong> {{ anuncio.provincia }}</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-blue-500 text-xl">📍</span>
         <span><strong>Zona:</strong> {{ anuncio.zona }}</span>
       </div>
       <div class="flex items-center gap-3">
@@ -52,20 +91,26 @@
         <span class="text-green-500 text-xl">🌎</span>
         <span><strong>Nacionalidad:</strong> {{ anuncio.etnia }}</span>
       </div>
-    </div>
+    </section>
 
     <!-- A quién atiende -->
-    <div *ngIf="anuncio.atencion?.length" class="bg-zinc-50 p-4 rounded-xl border border-zinc-200">
-      <h3 class="text-xl font-semibold text-zinc-700 mb-2">🙋 ¿A quién atiende?</h3>
-      <div class="flex flex-wrap gap-3">
+    <section *ngIf="anuncio.atencion?.length" class="bg-zinc-50 p-4 rounded-xl border border-zinc-200">
+      <h3 class="text-xl font-semibold text-zinc-800 mb-2">🙋 ¿A quién atiende?</h3>
+      <div class="flex flex-wrap gap-2">
         <span *ngFor="let item of anuncio.atencion"
               class="bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white px-4 py-1 rounded-full text-sm font-medium shadow">
           {{ item }}
         </span>
       </div>
-    </div>
-
-    <!-- Descripción -->
-
+    </section>
   </div>
+</div>
+
+<!-- LIGHTBOX simple (sin carrusel) -->
+<div *ngIf="lightboxAbierto" class="fixed inset-0 bg-black/90 z-50 grid place-items-center p-4">
+  <button (click)="cerrarLightbox()"
+          class="absolute top-5 right-5 text-white/90 hover:text-white text-3xl leading-none">
+    &times;
+  </button>
+  <img [src]="lightboxSrc" alt="Foto" class="max-h-[90vh] max-w-[92vw] object-contain rounded-lg shadow-2xl">
 </div>

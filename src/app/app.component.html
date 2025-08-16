@@ -2,3 +2,9 @@
 <div id="transition-overlay"></div>
 <router-outlet></router-outlet>
 <app-footer></app-footer>
+
+<app-age-consent-modal
+  [open]="showConsent"
+  (accepted)="onConsentAccepted()"
+  (declined)="onConsentDeclined()">
+</app-age-consent-modal>

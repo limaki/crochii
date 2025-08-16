@@ -8,11 +8,15 @@ import { FiltrosService } from '../../services/filtros.services';
 import {  NgFor } from '@angular/common';
 import { AuthEventsService } from '../../services/auth-events.service';
 import { Subscription } from 'rxjs';
+import { NgClass } from '@angular/common';
+import { NgStyle } from '@angular/common';
+import { DatePipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor, RouterLink],
+  imports: [FormsModule, NgIf, NgFor, RouterLink, NgClass, NgStyle, DatePipe, AsyncPipe],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
@@ -23,6 +27,13 @@ export class HeaderComponent implements OnInit, OnDestroy  {
   provinciaSeleccionada = '';
   provincias: string[] = [];
   private sub?: Subscription;
+  mobileOpen = false;
+
+  anuncios: any[] = [];
+  loading = true;
+
+  verificado: boolean = false;
+
   zonasPorProvincia : { [key: string]: string[] } = { 
   
   "Santa Cruz": [
@@ -311,23 +322,51 @@ export class HeaderComponent implements OnInit, OnDestroy  {
 
   ngOnInit() {
     this.authState.authStatus$.subscribe(status => {
-      this.estaLogueado = status;
       this.estaLogueado = !!localStorage.getItem('token');
       const role = localStorage.getItem('role');
-      this.esAdmin = !!localStorage.getItem('token') && role === 'admin';
+      this.esAdmin = this.estaLogueado && role === 'admin';
+  
       this.sub = this.authEvents.authChanged$.subscribe(() => {
-      this.estaLogueado = !!localStorage.getItem('token');
-      const role = localStorage.getItem('role');
-      this.cdr.markForCheck();
+        this.estaLogueado = !!localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+        this.esAdmin = this.estaLogueado && role === 'admin';
+        this.cdr.markForCheck();
+      });
     });
+  
+    this.provincias = Object.keys(this.zonasPorProvincia);
+  
+    this.anunciosService.getMisAnuncios().subscribe({
+      next: (res: any) => {
+        this.anuncios = res;
+        this.loading = false;
+  
+        if (Array.isArray(res) && res.length > 0 && typeof res[0].verificado === 'boolean') {
+          localStorage.setItem('verificado', String(res[0].verificado));
+          this.verificado = res[0].verificado;
+        } else if (res && typeof res.verificado === 'boolean') {
+          localStorage.setItem('verificado', String(res.verificado));
+          this.verificado = res.verificado;
+        }
+      },
+      error: err => {
+        console.error('Error cargando anuncios', err);
+        this.loading = false;
+      }
     });
-    this.provincias = Object.keys(this.zonasPorProvincia); 
   }
+  
   ngOnDestroy() {
     this.sub?.unsubscribe();
   }
 
+
+
+toggleMobile() { this.mobileOpen = !this.mobileOpen; }
+closeMobile() { this.mobileOpen = false; }
+
   filtros = {
+    provincia: '',
     alias: '',
     genero: '',
     etnia: '',
@@ -359,7 +398,8 @@ export class HeaderComponent implements OnInit, OnDestroy  {
       edadMax: this.filtros.edadMax || null,
       medalla: this.filtros.medalla || '',
       verificado: this.filtros.verificado === true, 
-      atencion: this.filtros.atencion || ''
+      atencion: this.filtros.atencion || '',
+      provincia: this.provinciaSeleccionada || ''
     };
 
     if (filtros.verificado) {
@@ -369,5 +409,11 @@ export class HeaderComponent implements OnInit, OnDestroy  {
     this.filtrosService.aplicarFiltros(filtros);
     this.cerrarModal();
   }
+
+
+
+
+
+
 }
 

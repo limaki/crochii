@@ -1,58 +1,120 @@
-<header class="bg-white shadow-md sticky top-0 z-50">
-  <div class="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 py-4">
-    
-    <!-- Logo + nombre -->
-    <a routerLink="/" class="flex items-center gap-3 hover:opacity-90 transition">
-      <img src="anuncios.png" alt="Avisos Hot Logo" class="h-10 w-auto rounded-lg shadow-sm" />
-      <span class="text-2xl font-extrabold tracking-tight text-zinc-800 hover:text-violet-600 transition">
-        Avisos Hot
-      </span>
-    </a>
+<header class="sticky top-0 z-50">
+  <!-- barra superior glass -->
+  <div class="backdrop-blur bg-white/70 border-b border-zinc-200">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="h-16 flex items-center justify-between">
+        <!-- Logo -->
+        <a routerLink="/" class="flex items-center gap-3 group">
+          <img src="anuncios.png" alt="Avisos Hot" class="h-9 w-auto rounded-lg shadow-sm" />
+          <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-zinc-800 group-hover:text-violet-600 transition">
+            Avisos Hot
+          </span>
+        </a>
 
-    <!-- Botón Buscar -->
-    <div class="absolute left-1/2 transform -translate-x-1/2">
-      <button (click)="abrirModal()"
-              class="flex items-center gap-2 bg-violet-600 text-white font-semibold px-5 py-2 rounded-xl shadow hover:brightness-110 transition">
-        <i class="pi pi-search text-white"></i> Buscar
-      </button>
-    </div>
+        <!-- Centro (desktop): Buscar -->
+        <div class="hidden md:block">
+          <button (click)="abrirModal()"
+            class="h-11 px-5  rounded-2xl shadow ring-1 ring-violet-400/30 bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white font-semibold hover:brightness-110 active:scale-95 transition flex items-center gap-2">
+            <i class="pi pi-search"></i> Buscar Anuncios .
+          </button>
+        </div>
 
-    <!-- Botón Anunciarse o Mis Anuncios -->
-    <a *ngIf="!estaLogueado"
-       [routerLink]="['/register']"
-       [queryParams]="{ next: 'anunciarme' }"
-       class="px-4 py-2 text-sm font-semibold text-violet-600 border border-violet-600 rounded-lg hover:bg-violet-50 transition">
-      Anunciarme
-    </a>
+        <!-- Acciones (desktop) -->
+        <div class="hidden md:flex items-center gap-3">
+          <a *ngIf="!estaLogueado && !esAdmin"
+             [routerLink]="['/register']" [queryParams]="{ next: 'anunciarme' }"
+             class="px-4 py-2 text-sm font-semibold text-violet-600 border border-violet-600 rounded-xl hover:bg-violet-50 transition">
+            Anunciarme
+          </a>
 
+          <a *ngIf="estaLogueado && !esAdmin"
+             routerLink="/mis-anuncios"
+             class="px-4 py-2 text-sm font-semibold text-violet-600 border border-violet-600 rounded-xl hover:bg-violet-50 transition">
+            Mis Anuncios
+          </a>
 
-    <a *ngIf="estaLogueado && !esAdmin"
-    routerLink="/mis-anuncios"
-    class="px-4 py-2 text-sm font-semibold text-violet-600 border border-violet-600 rounded-lg hover:bg-violet-50 transition">
-   Mis Anuncios
- </a>
- 
- <!-- 🔹 Botón solo para admin -->
- <a *ngIf="esAdmin"
-    routerLink="/admin"
-    class="px-4 py-2 text-sm font-semibold text-white bg-violet-600 rounded-lg hover:brightness-110 transition">
-   Panel Admin
- </a>
+          <a *ngIf="esAdmin"
+             routerLink="/admin"
+             class="px-4 py-2 text-sm font-semibold text-white rounded-xl bg-violet-600 hover:brightness-110 transition shadow">
+            Panel Admin
+          </a>
+        </div>
+
+        <!-- Hamburguesa (mobile siempre visible) -->
+        <button type="button"
+          (click)="toggleMobile()"
+          class="md:hidden inline-flex items-center justify-center p-2 rounded-xl ring-1 ring-zinc-300 text-zinc-700 bg-white/80 hover:bg-zinc-50 transition"
+          [attr.aria-expanded]="mobileOpen">
+          <i class="pi" [ngClass]="mobileOpen ? 'pi-times' : 'pi-bars'"></i>
+        </button>
+      </div>
+    </nav>
   </div>
 
-  <!-- Promoción de verificación -->
-  <div *ngIf="estaLogueado && !esAdmin" class="bg-gradient-to-r from-indigo-50 via-violet-50 to-pink-50 border-y border-violet-200 text-zinc-800 text-center px-6 py-4 shadow-sm mb-6">
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-      <span class="text-base sm:text-lg font-semibold tracking-tight">
-        🔥 ¡Destacá tu anuncio y aparecé arriba en los resultados!
-      </span>
-      <a [routerLink]="['/verificacion']"
-         class="inline-block bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white text-sm font-bold px-5 py-2 rounded-full shadow hover:brightness-110 transition duration-300">
-        ✔️ Verificate ahora
+  <!-- 🔥 NO VERIFICADO -->
+  <div *ngIf="!verificado && estaLogueado && !esAdmin" 
+       class="relative overflow-hidden bg-gradient-to-r from-pink-500 via-violet-600 to-indigo-500 text-white text-center px-8 py-5 shadow-lg rounded-xl border border-violet-300 animate-pulse">
+    <div class="text-2xl font-bold flex items-center justify-center gap-2">
+      🔥 ¡Destacá tu anuncio!
+    </div>
+    <p class="mt-2 text-sm opacity-90">
+      Aparecé arriba en los resultados y atraé más clientes.
+    </p>
+    <a routerLink="/verificacion"
+       class="inline-flex items-center gap-2 mt-4 bg-white text-violet-700 font-semibold px-6 py-2 rounded-full shadow-md hover:shadow-xl hover:scale-105 transition transform duration-200">
+      ✔️ Verificate ahora
+    </a>
+  </div>
+
+  <!-- ✅ VERIFICADO -->
+  <div *ngIf="verificado && estaLogueado && esAdmin" 
+       class="relative overflow-hidden bg-gradient-to-r from-green-500 via-emerald-600 to-teal-500 text-white text-center px-8 py-5 shadow-lg rounded-xl border border-green-300">
+    <div class="text-2xl font-bold flex items-center justify-center gap-2">
+      ✅ Anuncio verificado
+    </div>
+    <p class="mt-2 text-sm opacity-90">
+      Tu anuncio está verificado por <span class="font-semibold">7 días</span>. ¡Renuevalo para que siga destacado!
+    </p>
+  </div>
+
+  <!-- Menú Mobile (desplegable) -->
+  <div class="md:hidden overflow-hidden transition-[max-height] duration-300"
+       [ngStyle]="{ 'max-height': mobileOpen ? '420px' : '0px' }">
+    <div class="bg-white border-b border-zinc-200 px-4 py-4 space-y-3">
+      <button (click)="abrirModal(); closeMobile()"
+        class="w-full h-11 rounded-2xl shadow ring-1 ring-violet-400/30 bg-gradient-to-r from-violet-600 to-fuchsia-500
+               text-white font-semibold hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-2">
+        <i class="pi pi-search"></i> Buscar
+      </button>
+      <a *ngIf="!estaLogueado"
+         (click)="closeMobile()" [routerLink]="['/register']" [queryParams]="{ next: 'anunciarme' }"
+         class="block w-full text-center px-4 py-2 text-sm font-semibold text-violet-600 border border-violet-600 rounded-xl hover:bg-violet-50 transition">
+        Anunciarme
+      </a>
+      <a *ngIf="estaLogueado && !esAdmin"
+         (click)="closeMobile()" routerLink="/mis-anuncios"
+         class="block w-full text-center px-4 py-2 text-sm font-semibold text-violet-600 border border-violet-600 rounded-xl hover:bg-violet-50 transition">
+        Mis Anuncios
+      </a>
+      <a *ngIf="esAdmin"
+         (click)="closeMobile()" routerLink="/admin"
+         class="block w-full text-center px-4 py-2 text-sm font-semibold text-white bg-violet-600 rounded-xl hover:brightness-110 transition shadow">
+        Panel Admin
       </a>
     </div>
   </div>
+
+  <!-- 📜 Términos y Privacidad -->
+  <div class="bg-zinc-50 border-t border-zinc-200 px-6 py-4 text-center text-xs sm:text-sm text-zinc-600">
+    <p>
+      Al usar esta plataforma aceptás nuestros 
+      <a routerLink="/terminos" class="text-violet-600 font-semibold hover:underline">Términos de uso</a> 
+      y 
+      <a routerLink="/politica-privacidad" class="text-violet-600 font-semibold hover:underline">Política de Privacidad</a>.
+    </p>
+  </div>
 </header>
+
 
 
 
@@ -107,8 +169,8 @@
             <option value="">Todos</option>
             <option value="mujer">Mujer</option>
             <option value="hombre">Hombre</option>
-            <!-- <option value="trans-hombre">Trans Hombre</option>
-            <option value="trans-mujer">Trans Mujer</option> -->
+            <option value="trans-hombre">Trans Hombre</option>
+            <option value="trans-mujer">Trans Mujer</option> 
             
             
           </select>

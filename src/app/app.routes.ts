@@ -9,6 +9,8 @@ import { AnuncioDetalleComponent } from './pages/anuncio-detalle/anuncio-detalle
 import { EditarAnuncioComponent } from './pages/editar-anuncio/editar-anuncio.component';
 import { VerificacionBeneficiosComponent } from './pages/verificacion-beneficios/verificacion-beneficios.component';
 import { VerificacionExitosaComponent } from './pages/verificacion-exitosa/verificacion-exitosa.component';
+import { PoliticaPrivacidadComponent } from './pages/politica-privacidad/politica-privacidad.component';
+import { TerminosComponent } from './pages/terminos/terminos.component';
 
 export const routes: Routes = [
     {path: 'anunciarme', component: AnunciarmeComponent},
@@ -21,5 +23,7 @@ export const routes: Routes = [
     {path : 'verificado-exito', component: VerificacionExitosaComponent},
     {path: 'anuncio-individual/:id', component: AnuncioDetalleComponent},
     {path: 'editar-anuncio/:id', component: EditarAnuncioComponent},
+    {path: 'politica-privacidad', component: PoliticaPrivacidadComponent},
+    {path: 'terminos', component: TerminosComponent},
     {path: '', pathMatch: 'full', redirectTo: 'anuncios'}
 ];
